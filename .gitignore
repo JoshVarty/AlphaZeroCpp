@@ -1,5 +1,6 @@
 # Custom
 build/
+libtorch/
 
 # Prerequisites
 *.d

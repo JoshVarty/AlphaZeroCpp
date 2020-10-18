@@ -5,6 +5,6 @@ add_definitions(-std=c++17)
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
-project(HelloWorld)
+project(AlphaZeroCpp)
 
-add_executable(HelloWorld src/main.cpp)
+add_executable(AlphaZeroCpp src/main.cpp)

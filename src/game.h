@@ -11,7 +11,7 @@ struct State {
 class Connect2Game {
 
 public:
-    Connect2Game();
+    Connect2Game() { }
     vector<int> GetInitBoard();
     int GetBoardSize() { return columns; }
     int GetActionSize() { return columns; }
@@ -20,6 +20,7 @@ public:
     bool HasLegalMoves(vector<int> board);
     bool IsWin(vector<int> board, int player);
     int GetRewardForPlayer(vector<int> board, int player);
+    vector<int> GetCanonicalBoard(vector<int> board, int player);
 
 private:
     int columns = 4;        // The number of columns in our game

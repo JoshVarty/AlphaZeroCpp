@@ -3,6 +3,6 @@ project(dcgan)
 
 find_package(Torch REQUIRED)
 
-add_executable(dcgan src/main.cpp)
-target_link_libraries(dcgan "${TORCH_LIBRARIES}")
-set_property(TARGET dcgan PROPERTY CXX_STANDARD 14)
+add_executable(AlphaZeroCpp src/main.cpp)
+target_link_libraries(AlphaZeroCpp "${TORCH_LIBRARIES}")
+set_property(TARGET AlphaZeroCpp PROPERTY CXX_STANDARD 14)

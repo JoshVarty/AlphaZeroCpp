@@ -1,11 +1,9 @@
 #include <iostream>
+#include <torch/torch.h>
+#include <game.h>
 
 
 int main() {
-    std::cout << "Hello word" << std::endl;
-
-    int x = 6;
-
-    std::cout << x << std::endl;
-
+    auto tensor = torch::eye(3);
+    std::cout << tensor << std::endl;
 }

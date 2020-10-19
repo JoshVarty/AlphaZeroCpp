@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
+project(dcgan)
 
-add_definitions(-std=c++17)
+find_package(Torch REQUIRED)
 
-set(CXX_FLAGS "-Wall")
-set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
-
-project(AlphaZeroCpp)
-
-add_executable(AlphaZeroCpp src/main.cpp)
+add_executable(dcgan src/main.cpp)
+target_link_libraries(dcgan "${TORCH_LIBRARIES}")
+set_property(TARGET dcgan PROPERTY CXX_STANDARD 14)

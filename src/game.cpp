@@ -67,16 +67,15 @@ int Connect2Game::GetRewardForPlayer(vector<int> board, int player) {
     if (IsWin(board, -player)) {
         return -1;
     }
-    if (HasLegalMoves(board)) {
-        //TODO: We need a better sentinel value. Optional types?
-        return 123;
+    if (!HasLegalMoves(board)) {
+        return 0;
     }
 
-    // Draw
-    return 0;
+    throw invalid_argument("Invalid board. No reward.");
 }
 
-vector<int> Connect2Game::GetCanonicalBoard(vector<int> board, int player) {
+vector<int> Connect2Game::GetCanonicalBoard(vector<int> old_board, int player) {
+    vector<int> board(old_board);
     std::transform(board.begin(), board.end(), board.begin(),
                std::bind(std::multiplies<int>(), std::placeholders::_1, -1));
 

@@ -28,7 +28,7 @@ struct Connect2Model : torch::nn::Module {
 
     ActionValuePair forward(torch::Tensor input) {
         auto x = torch::relu(_fc1(input));
-        x = torch::relu(_fc2(input));
+        x = torch::relu(_fc2(x));
 
         auto action_logits = _actionHead(x);
         auto value_logit = _valueHead(x);

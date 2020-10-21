@@ -17,15 +17,12 @@ struct Connect2Model : torch::nn::Module {
     Connect2Model(int boardSize, int actionSize, torch::Device device) : 
     _boardSize(boardSize),
     _actionSize(actionSize),
-    _device(device)
+    _device(device),
+    _fc1(register_module("_fc1", torch::nn::Linear(boardSize, 16))),
+    _fc2(register_module("_fc2", torch::nn::Linear(16, 16))),
+    _actionHead(register_module("_actionHead", torch::nn::Linear(16, actionSize))),
+    _valueHead(register_module("_valueHead", torch::nn::Linear(16, 1)))
     {
-        _fc1 = register_module("_fc1", torch::nn::Linear(boardSize, 16));
-        _fc2 = register_module("_fc2", torch::nn::Linear(16, 16));
-
-        // Two heads on our network
-        _actionHead = register_module("_actionHead", torch::nn::Linear(16, actionSize));
-        _valueHead = register_module("_valueHead", torch::nn::Linear(16, 1));
-
         this->to(device);
     }
 

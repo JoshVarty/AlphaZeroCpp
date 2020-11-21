@@ -1,3 +1,6 @@
+#ifndef GAME_H
+#define GAME_H
+
 #include <vector>
 
 using namespace std;
@@ -26,3 +29,5 @@ private:
     int columns = 4;        // The number of columns in our game
     int num_to_win = 2;     // The required number of adjacent tokens to win
 };
+
+#endif /* GAME_H */

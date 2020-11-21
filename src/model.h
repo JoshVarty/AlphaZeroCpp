@@ -1,3 +1,6 @@
+#ifndef MODEL_H
+#define MODEL_H
+
 #include <torch/torch.h>
 
 struct ActionValuePair {
@@ -68,3 +71,5 @@ struct Connect2Model : torch::nn::Module {
     torch::nn::Linear _actionHead;
     torch::nn::Linear _valueHead;
 };
+
+#endif /* MODEL_H */

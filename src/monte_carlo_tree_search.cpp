@@ -93,3 +93,22 @@ void Node::Expand(std::vector<int> state, int toPlay, std::vector<float> actionP
         }
     }
 }
+
+MCTS::MCTS(Connect2Game game, Connect2Model model, int numSimluations) :
+ _game(game),
+ _model(model),
+ _numSimulations(numSimluations) { 
+
+}
+
+
+Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay) {
+
+    auto root = Node(0, toPlay, -1);
+
+    // Expand root
+    auto res = model.predict(state);
+
+
+}
+

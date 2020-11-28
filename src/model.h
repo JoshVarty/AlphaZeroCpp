@@ -3,15 +3,19 @@
 
 #include <torch/torch.h>
 
-struct ActionValuePair {
-    torch::Tensor action;
+// During training, we need to keep a copy of the original tensors
+// so we can create a loss and backprop through everything.
+struct ActionProbsAndValueTensor {
+    torch::Tensor actionProbs;
     torch::Tensor value;
 };
 
-struct PredictPair
+// During prediction, we simply want the raw numerical values for 
+// actionProbs and our value.
+struct ActionProbsAndValue
 {
-    std::vector<double> probs;
-    double value;
+    std::vector<float> actionProbs;
+    float value;
 };
 
 
@@ -29,24 +33,24 @@ struct Connect2Model : torch::nn::Module {
         this->to(device);
     }
 
-    ActionValuePair forward(torch::Tensor input) {
+    ActionProbsAndValueTensor forward(torch::Tensor input) {
         auto x = torch::relu(_fc1(input));
         x = torch::relu(_fc2(x));
 
         auto action_logits = _actionHead(x);
         auto value_logit = _valueHead(x);
 
-        auto action = torch::softmax(action_logits, 1);
+        auto actionProbs = torch::softmax(action_logits, 1);
         auto value = torch::tanh(value_logit);
 
-        ActionValuePair returnVal;
-        returnVal.action = action;
+        ActionProbsAndValueTensor returnVal;
+        returnVal.actionProbs = actionProbs;
         returnVal.value = value;
 
         return returnVal;
     }
 
-    int predict(std::vector<int> board) {
+    ActionProbsAndValue predict(std::vector<int> board) {
         this->eval();
 
         auto opts = torch::TensorOptions().dtype(torch::kInt32);
@@ -55,11 +59,17 @@ struct Connect2Model : torch::nn::Module {
 
         torch::NoGradGuard guard;
 
-        auto result = this->forward(input);
+        ActionProbsAndValueTensor result = this->forward(input);
 
-        // TODO: Get data from GPU, return as vanilla vector<int> and int
+        // Unpack values from tensors into primitive types
+        auto actionProbsTensor = result.actionProbs.cpu();
+        auto value = result.value.cpu().item<float>();
+        std::vector<float> actionProbs(actionProbsTensor.data_ptr<float>(), actionProbsTensor.data_ptr<float>() + actionProbsTensor.numel());
 
-        return 0;
+        ActionProbsAndValue apv;
+        apv.actionProbs = actionProbs;
+        apv.value = value;
+        return apv;
     }
 
     int _boardSize;

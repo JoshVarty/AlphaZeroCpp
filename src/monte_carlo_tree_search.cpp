@@ -101,14 +101,56 @@ MCTS::MCTS(Connect2Game game, Connect2Model model, int numSimluations) :
 
 }
 
+// Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay, int numSimulations) {
 
-Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay) {
+//     auto root = Node(0, toPlay, -1);
 
-    auto root = Node(0, toPlay, -1);
+//     // Expand root
+//     auto result = model.predict(state);
+//     auto actionProbs = result.actionProbs;
+//     auto value = result.value;
 
-    // Expand root
-    auto res = model.predict(state);
+//     auto validMoves = this->_game.GetValidMoves(state);
+
+//     // Mask out invalid moves
+//     std::transform(actionProbs.begin(), actionProbs.end(),
+//                     validMoves.begin(), 
+//                     actionProbs.begin(),
+//                     std::multiplies<float>());
+
+//     // Normalize remaining probabilities
+//     float sumOfValidProbs = std::accumulate(actionProbs.begin(), actionProbs.end(), 0);
+//     std::transform(actionProbs.begin(), actionProbs.end(),
+//                     validMoves.begin(), 
+//                     actionProbs.begin(),
+//                     [&sumOfValidProbs] (float prob) -> float { return prob / sumOfValidProbs; });
+
+//     root.Expand(state, toPlay, actionProbs);
 
 
-}
+//     for (int i = 0; i < numSimulations; i++) {            
+//         Node node = root;
+//         std::vector<Node> searchPath = { node };
+
+//         // SELECT
+//         while (node.IsExpanded()) {
+//             node = node.SelectChild();
+//             searchPath.push_back(node);
+//         }
+
+//         Node parent = searchPath[searchPath.size() - 2];
+//         state = parent.GetState();
+//         // Now we're at a leaf node and we would like to expand
+//         // Players always play from their own perspective
+//         auto nextStateAndPlayer = this->_game.GetNextState(state, /*player=*/1, /*action=*/node.GetAction());
+//         auto nextState = nextStateAndPlayer.board;
+//         // Get the board from the perspective of the other player
+//         nextState = this->_game.GetCanonicalBoard(nextState, /*player=*/-1);
+
+//         // The value of the new state from the perspective of the other player
+//         value = this->_game.GetRewardForPlayer(nextState, /*player=*/1);
+
+
+//     }
+// }
 

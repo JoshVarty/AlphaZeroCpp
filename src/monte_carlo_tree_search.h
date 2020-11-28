@@ -11,6 +11,8 @@ public:
     int SelectAction(float temperature);
     Node SelectChild();
     void Expand(std::vector<int> state, int toPlay, std::vector<float> actionProbs);
+    std::vector<int> GetState() { return _state; };
+    int GetAction() { return _action; };
 private:
     int _visitCount = 0;
     int _toPlay = 0;

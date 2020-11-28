@@ -66,9 +66,7 @@ struct Connect2Model : torch::nn::Module {
         auto value = result.value.cpu().item<float>();
         std::vector<float> actionProbs(actionProbsTensor.data_ptr<float>(), actionProbsTensor.data_ptr<float>() + actionProbsTensor.numel());
 
-        ActionProbsAndValue apv;
-        apv.actionProbs = actionProbs;
-        apv.value = value;
+        ActionProbsAndValue apv = { actionProbs, value };
         return apv;
     }
 

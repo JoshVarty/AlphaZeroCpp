@@ -6,7 +6,7 @@
 using namespace std;
 
 
-struct State {
+struct StateAndPlayer {
     vector<int> board;
     int player;
 };
@@ -18,7 +18,7 @@ public:
     vector<int> GetInitBoard();
     int GetBoardSize() { return columns; }
     int GetActionSize() { return columns; }
-    State GetNextState(vector<int> board, int player, int action);
+    StateAndPlayer GetNextState(vector<int> board, int player, int action);
     vector<int> GetValidMoves(vector<int> board);
     bool HasLegalMoves(vector<int> board);
     bool IsWin(vector<int> board, int player);

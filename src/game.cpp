@@ -7,15 +7,13 @@ vector<int> Connect2Game::GetInitBoard() {
     return {0, 0, 0, 0};
 }
 
-State Connect2Game::GetNextState(vector<int> board, int player, int action) {
+StateAndPlayer Connect2Game::GetNextState(vector<int> board, int player, int action) {
     vector<int> new_board(board);
 
     new_board[action] = player;
 
-    auto nextState = State();
-    nextState.board = new_board;
-    nextState.player = -player;
-    return nextState;
+    StateAndPlayer nextStateAndPlayer = {new_board, -player };
+    return nextStateAndPlayer;
 }
 
 vector<int> Connect2Game::GetValidMoves(vector<int> board) {

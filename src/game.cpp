@@ -3,12 +3,12 @@
 #include <functional>
 
 
-vector<int> Connect2Game::GetInitBoard() {
+std::vector<int> Connect2Game::GetInitBoard() {
     return {0, 0, 0, 0};
 }
 
-StateAndPlayer Connect2Game::GetNextState(vector<int> board, int player, int action) {
-    vector<int> new_board(board);
+StateAndPlayer Connect2Game::GetNextState(std::vector<int> board, int player, int action) {
+    std::vector<int> new_board(board);
 
     new_board[action] = player;
 
@@ -16,8 +16,8 @@ StateAndPlayer Connect2Game::GetNextState(vector<int> board, int player, int act
     return nextStateAndPlayer;
 }
 
-vector<int> Connect2Game::GetValidMoves(vector<int> board) {
-    vector<int> valid_moves = {0, 0, 0, 0};
+std::vector<int> Connect2Game::GetValidMoves(std::vector<int> board) {
+    std::vector<int> valid_moves = {0, 0, 0, 0};
 
     for(int i = 0; i < columns; i++) {
         if (board[i] == 0) {
@@ -28,7 +28,7 @@ vector<int> Connect2Game::GetValidMoves(vector<int> board) {
     return valid_moves;
 }
 
-bool Connect2Game::HasLegalMoves(vector<int> board) {
+bool Connect2Game::HasLegalMoves(std::vector<int> board) {
 
     for (int i = 0; i < columns; i++) {
         if (board[i] == 0)
@@ -38,7 +38,7 @@ bool Connect2Game::HasLegalMoves(vector<int> board) {
     return false;
 }
 
-bool Connect2Game::IsWin(vector<int> board, int player) {
+bool Connect2Game::IsWin(std::vector<int> board, int player) {
     int count = 0;
 
     for(int i = 0; i < columns; i++) {
@@ -57,7 +57,7 @@ bool Connect2Game::IsWin(vector<int> board, int player) {
     return false;
 }
 
-int Connect2Game::GetRewardForPlayer(vector<int> board, int player) {
+int Connect2Game::GetRewardForPlayer(std::vector<int> board, int player) {
 
     if (IsWin(board, player)) {
         return 1;
@@ -69,11 +69,11 @@ int Connect2Game::GetRewardForPlayer(vector<int> board, int player) {
         return 0;
     }
 
-    throw invalid_argument("Invalid board. No reward.");
+    throw std::invalid_argument("Invalid board. No reward.");
 }
 
-vector<int> Connect2Game::GetCanonicalBoard(vector<int> old_board, int player) {
-    vector<int> board(old_board);
+std::vector<int> Connect2Game::GetCanonicalBoard(std::vector<int> old_board, int player) {
+    std::vector<int> board(old_board);
     std::transform(board.begin(), board.end(), board.begin(),
                std::bind(std::multiplies<int>(), std::placeholders::_1, -1));
 

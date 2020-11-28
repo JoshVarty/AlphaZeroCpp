@@ -19,8 +19,8 @@ TEST(MCTSTests, NodeCanExpandCorrectly) {
     int action = 0;
     Node node(prior, toPlay, action);
 
-    vector<int> state = {0, 0, 0, 0};
-    vector<float> actionProbs = {0.25, 0.25, 0.25, 0.25};
+    std::vector<int> state = {0, 0, 0, 0};
+    std::vector<float> actionProbs = {0.25, 0.25, 0.25, 0.25};
     node.Expand(state, toPlay,  actionProbs);
 
     ASSERT_EQ(node.IsExpanded(), true);

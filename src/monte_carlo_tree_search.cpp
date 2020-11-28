@@ -21,8 +21,8 @@ float Node::GetValue() {
 }
 
 int Node::SelectAction(float temperature) {
-    vector<int> actions;
-    vector<int> visitCounts;
+    std::vector<int> actions;
+    std::vector<int> visitCounts;
 
     int maxAction = -1;
     int maxVisitCount = -1;

@@ -16,7 +16,7 @@ TEST(Connect2Tests, EnsureInitialBoardIsEmpty) {
 TEST(Connect2Tests, GetNextStateWorks) {
 
     Connect2Game game;
-    vector<int> original_board = {0, 0, -1, 0};
+    std::vector<int> original_board = {0, 0, -1, 0};
     int player = 1;
     int action = 0;
     auto nextState = game.GetNextState(original_board, player, action);
@@ -39,7 +39,7 @@ TEST(Connect2Tests, GetNextStateWorks) {
  
 TEST(Connect2Tests, GetValidMovesWorks) {
     Connect2Game game;
-    vector<int> original_board = {0, 0, -1, 0};
+    std::vector<int> original_board = {0, 0, -1, 0};
 
     auto valid_moves = game.GetValidMoves(original_board);
 
@@ -58,7 +58,7 @@ TEST(Connect2Tests, GetValidMovesWorks) {
 
 TEST(Connect2Tests, GetValidMovesWorks_NoMovesAvailable) {
     Connect2Game game;
-    vector<int> original_board = {1, -1, 1, -1};
+    std::vector<int> original_board = {1, -1, 1, -1};
 
     auto valid_moves = game.GetValidMoves(original_board);
 
@@ -78,7 +78,7 @@ TEST(Connect2Tests, GetValidMovesWorks_NoMovesAvailable) {
 
 TEST(Connect2Tests, HasLegalMoves) {
     Connect2Game game;
-    vector<int> original_board = {0, -1, 0, 0};
+    std::vector<int> original_board = {0, -1, 0, 0};
 
     auto hasLegalMoves = game.HasLegalMoves(original_board);
 
@@ -93,7 +93,7 @@ TEST(Connect2Tests, HasLegalMoves) {
 
 TEST(Connect2Tests, HasLegalMoves_NoMoves) {
     Connect2Game game;
-    vector<int> original_board = {1, -1, 1, -1};
+    std::vector<int> original_board = {1, -1, 1, -1};
 
     auto hasLegalMoves = game.HasLegalMoves(original_board);
 
@@ -108,7 +108,7 @@ TEST(Connect2Tests, HasLegalMoves_NoMoves) {
 
 TEST(Connect2Tests, IsWin_ValidMovesRemain) {
     Connect2Game game;
-    vector<int> original_board = {0, 0, 0, 0};
+    std::vector<int> original_board = {0, 0, 0, 0};
     int player = 1;
 
     auto isWin = game.IsWin(original_board, player);
@@ -124,7 +124,7 @@ TEST(Connect2Tests, IsWin_ValidMovesRemain) {
 
 TEST(Connect2Tests, IsWin_Draw) {
     Connect2Game game;
-    vector<int> original_board = {1, -1, 1, -1};
+    std::vector<int> original_board = {1, -1, 1, -1};
     int player = 1;
 
     auto isWin = game.IsWin(original_board, player);
@@ -140,7 +140,7 @@ TEST(Connect2Tests, IsWin_Draw) {
 
 TEST(Connect2Tests, IsWin_Loss) {
     Connect2Game game;
-    vector<int> original_board = {1, 1, -1, 1};
+    std::vector<int> original_board = {1, 1, -1, 1};
     int player = -1;
 
     auto isWin = game.IsWin(original_board, player);
@@ -156,7 +156,7 @@ TEST(Connect2Tests, IsWin_Loss) {
 
 TEST(Connect2Tests, IsWin_Win) {
     Connect2Game game;
-    vector<int> original_board = {1, 1, -1, 1};
+    std::vector<int> original_board = {1, 1, -1, 1};
     int player = 1;
 
     auto isWin = game.IsWin(original_board, player);
@@ -172,7 +172,7 @@ TEST(Connect2Tests, IsWin_Win) {
 
 TEST(Connect2Tests, GetRewardForPlayer_Win) {
     Connect2Game game;
-    vector<int> original_board = {1, 1, -1, 0};
+    std::vector<int> original_board = {1, 1, -1, 0};
     int player = 1;
 
     auto reward = game.GetRewardForPlayer(original_board, player);
@@ -189,7 +189,7 @@ TEST(Connect2Tests, GetRewardForPlayer_Win) {
 
 TEST(Connect2Tests, GetRewardForPlayer_Loss) {
     Connect2Game game;
-    vector<int> original_board = {-1, -1, 1, 0};
+    std::vector<int> original_board = {-1, -1, 1, 0};
     int player = 1;
 
     auto reward = game.GetRewardForPlayer(original_board, player);
@@ -205,10 +205,10 @@ TEST(Connect2Tests, GetRewardForPlayer_Loss) {
 
 TEST(Connect2Tests, GetRewardForPlayer_NoWin) {
     Connect2Game game;
-    vector<int> original_board = {0, 0, 1, 0};
+    std::vector<int> original_board = {0, 0, 1, 0};
     int player = 1;
 
-    EXPECT_THROW(game.GetRewardForPlayer(original_board, player), invalid_argument);
+    EXPECT_THROW(game.GetRewardForPlayer(original_board, player), std::invalid_argument);
 
     // Ensure original board is unchanged
     ASSERT_EQ(original_board[0], 0);
@@ -219,7 +219,7 @@ TEST(Connect2Tests, GetRewardForPlayer_NoWin) {
 
 TEST(Connect2Tests, GetCanonicalBoard_Empty) {
     Connect2Game game;
-    vector<int> original_board = {0, 0, 0, 0};
+    std::vector<int> original_board = {0, 0, 0, 0};
     int player = 1;
 
     auto next_board = game.GetCanonicalBoard(original_board, player);
@@ -239,7 +239,7 @@ TEST(Connect2Tests, GetCanonicalBoard_Empty) {
 
 TEST(Connect2Tests, GetCanonicalBoard_NoChange) {
     Connect2Game game;
-    vector<int> original_board = {1, 0, 0, 0};
+    std::vector<int> original_board = {1, 0, 0, 0};
     int player = 1;
 
     auto next_board = game.GetCanonicalBoard(original_board, player);
@@ -259,7 +259,7 @@ TEST(Connect2Tests, GetCanonicalBoard_NoChange) {
 
 TEST(Connect2Tests, GetCanonicalBoard_TogglePointOfView) {
     Connect2Game game;
-    vector<int> original_board = {1, 0, 0, 0};
+    std::vector<int> original_board = {1, 0, 0, 0};
     int player = -1;
 
     auto next_board = game.GetCanonicalBoard(original_board, player);

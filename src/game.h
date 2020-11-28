@@ -3,11 +3,8 @@
 
 #include <vector>
 
-using namespace std;
-
-
 struct StateAndPlayer {
-    vector<int> board;
+    std::vector<int> board;
     int player;
 };
 
@@ -15,15 +12,15 @@ class Connect2Game {
 
 public:
     Connect2Game() { }
-    vector<int> GetInitBoard();
+    std::vector<int> GetInitBoard();
     int GetBoardSize() { return columns; }
     int GetActionSize() { return columns; }
-    StateAndPlayer GetNextState(vector<int> board, int player, int action);
-    vector<int> GetValidMoves(vector<int> board);
-    bool HasLegalMoves(vector<int> board);
-    bool IsWin(vector<int> board, int player);
-    int GetRewardForPlayer(vector<int> board, int player);
-    vector<int> GetCanonicalBoard(vector<int> board, int player);
+    StateAndPlayer GetNextState(std::vector<int> board, int player, int action);
+    std::vector<int> GetValidMoves(std::vector<int> board);
+    bool HasLegalMoves(std::vector<int> board);
+    bool IsWin(std::vector<int> board, int player);
+    int GetRewardForPlayer(std::vector<int> board, int player);
+    std::vector<int> GetCanonicalBoard(std::vector<int> board, int player);
 
 private:
     int columns = 4;        // The number of columns in our game

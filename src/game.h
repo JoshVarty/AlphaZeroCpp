@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <vector>
+#include <optional>
 
 struct StateAndPlayer {
     std::vector<int> board;
@@ -19,7 +20,7 @@ public:
     std::vector<int> GetValidMoves(std::vector<int> board);
     bool HasLegalMoves(std::vector<int> board);
     bool IsWin(std::vector<int> board, int player);
-    int GetRewardForPlayer(std::vector<int> board, int player);
+    std::optional<int> GetRewardForPlayer(std::vector<int> board, int player);
     std::vector<int> GetCanonicalBoard(std::vector<int> board, int player);
 
 private:

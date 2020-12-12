@@ -57,7 +57,7 @@ bool Connect2Game::IsWin(std::vector<int> board, int player) {
     return false;
 }
 
-int Connect2Game::GetRewardForPlayer(std::vector<int> board, int player) {
+std::optional<int> Connect2Game::GetRewardForPlayer(std::vector<int> board, int player) {
 
     if (IsWin(board, player)) {
         return 1;
@@ -69,7 +69,7 @@ int Connect2Game::GetRewardForPlayer(std::vector<int> board, int player) {
         return 0;
     }
 
-    throw std::invalid_argument("Invalid board. No reward.");
+    return std::nullopt;
 }
 
 std::vector<int> Connect2Game::GetCanonicalBoard(std::vector<int> old_board, int player) {

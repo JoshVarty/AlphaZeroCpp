@@ -98,8 +98,24 @@ MCTS::MCTS(Connect2Game game, Connect2Model model, int numSimluations) :
  _game(game),
  _model(model),
  _numSimulations(numSimluations) { 
-
 }
+
+void MCTS::MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vector<int> validMoves) {
+    // Mask out invalid moves
+    std::transform(actionProbs.begin(), actionProbs.end(),
+                    validMoves.begin(), 
+                    actionProbs.begin(),
+                    std::multiplies<float>());
+
+    // // Normalize remaining probabilities
+    float sumOfValidProbs = std::accumulate(actionProbs.begin(), actionProbs.end(), 0);
+    
+    std::transform(actionProbs.begin(), actionProbs.end(),
+                    actionProbs.begin(),
+                    [&sumOfValidProbs] (float prob) -> float { return prob / sumOfValidProbs; });
+}
+
+
 
 // Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay, int numSimulations) {
 
@@ -111,19 +127,7 @@ MCTS::MCTS(Connect2Game game, Connect2Model model, int numSimluations) :
 //     auto value = result.value;
 
 //     auto validMoves = this->_game.GetValidMoves(state);
-
-//     // Mask out invalid moves
-//     std::transform(actionProbs.begin(), actionProbs.end(),
-//                     validMoves.begin(), 
-//                     actionProbs.begin(),
-//                     std::multiplies<float>());
-
-//     // Normalize remaining probabilities
-//     float sumOfValidProbs = std::accumulate(actionProbs.begin(), actionProbs.end(), 0);
-//     std::transform(actionProbs.begin(), actionProbs.end(),
-//                     validMoves.begin(), 
-//                     actionProbs.begin(),
-//                     [&sumOfValidProbs] (float prob) -> float { return prob / sumOfValidProbs; });
+//     maskAndNormalizeActionProbs(actionProbs, validMoves);
 
 //     root.Expand(state, toPlay, actionProbs);
 
@@ -148,7 +152,18 @@ MCTS::MCTS(Connect2Game game, Connect2Model model, int numSimluations) :
 //         nextState = this->_game.GetCanonicalBoard(nextState, /*player=*/-1);
 
 //         // The value of the new state from the perspective of the other player
-//         value = this->_game.GetRewardForPlayer(nextState, /*player=*/1);
+//         auto optValue = this->_game.GetRewardForPlayer(nextState, /*player=*/1);
+
+//         if (optValue.has_value()) {
+//             value = optValue.value();
+//             // If the game has not ended:
+//             // EXPAND
+//             auto res = model.predict(nextState);
+//             auto valid_moves = this->_game.GetValidMoves(nextState);
+//             // Mask and normalize
+
+//         }
+
 
 
 //     }

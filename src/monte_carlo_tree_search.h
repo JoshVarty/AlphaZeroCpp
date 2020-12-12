@@ -1,3 +1,6 @@
+#ifndef MCTS_H
+#define MCTS_H
+
 #include <torch/torch.h>
 #include <game.h>
 #include <model.h>
@@ -29,9 +32,13 @@ class MCTS {
 public:
     MCTS(Connect2Game game, Connect2Model model, int numSimluations);
     Node Run(Connect2Model model, std::vector<int> state, int toPlay);
+    static void MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vector<int> validMoves);
 private:
     void BackPropagate(std::vector<Node> searchPath, float value, int toPlay);
     Connect2Game _game;
     Connect2Model _model;
     int _numSimulations;
 };
+
+
+#endif 

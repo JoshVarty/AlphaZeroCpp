@@ -208,7 +208,10 @@ TEST(Connect2Tests, GetRewardForPlayer_NoWin) {
     std::vector<int> original_board = {0, 0, 1, 0};
     int player = 1;
 
-    EXPECT_THROW(game.GetRewardForPlayer(original_board, player), std::invalid_argument);
+    auto reward = game.GetRewardForPlayer(original_board, player);
+
+    // No reward should be returned because the game isn't finised
+    ASSERT_EQ(reward, std::nullopt);
 
     // Ensure original board is unchanged
     ASSERT_EQ(original_board[0], 0);

@@ -26,4 +26,16 @@ TEST(MCTSTests, NodeCanExpandCorrectly) {
     ASSERT_EQ(node.IsExpanded(), true);
 }
 
+TEST(MCTSTests, CanMaskAndNormalize_AllValid) {
+
+    std::vector<float> actionProbs = {0.25, 0.25, 0.25, 0.25};
+    std::vector<int> validMoves = {1, 1, 1, 1};
+
+    MCTS::MaskInvalidMovesAndNormalize(actionProbs, validMoves);
+
+    ASSERT_EQ(actionProbs[0], 0.25);
+    ASSERT_EQ(actionProbs[0], 0.25);
+    ASSERT_EQ(actionProbs[0], 0.25);
+    ASSERT_EQ(actionProbs[0], 0.25);
+}
 

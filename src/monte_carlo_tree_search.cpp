@@ -120,55 +120,68 @@ std::vector<float> MCTS::MaskInvalidMovesAndNormalize(std::vector<float> actionP
 
 
 
-// Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay, int numSimulations) {
+Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay, int numSimulations) {
 
-//     auto root = Node(0, toPlay, -1);
+    auto root = Node(0, toPlay, -1);
 
-//     // Expand root
-//     auto result = model.predict(state);
-//     auto actionProbs = result.actionProbs;
-//     auto value = result.value;
+    // Expand root
+    auto result = model.predict(state);
+    auto actionProbs = result.actionProbs;
+    auto value = result.value;
+    auto validMoves = this->_game.GetValidMoves(state);
+    actionProbs = MaskInvalidMovesAndNormalize(actionProbs, validMoves);
+    root.Expand(state, toPlay, actionProbs);
 
-//     auto validMoves = this->_game.GetValidMoves(state);
-//     maskAndNormalizeActionProbs(actionProbs, validMoves);
+    for (int i = 0; i < numSimulations; i++) {            
+        Node node = root;
+        std::vector<Node> searchPath = { node };
 
-//     root.Expand(state, toPlay, actionProbs);
+        // SELECT
+        while (node.IsExpanded()) {
+            node = node.SelectChild();
+            searchPath.push_back(node);
+        }
+
+        Node parent = searchPath[searchPath.size() - 2];
+        state = parent.GetState();
+        // Now we're at a leaf node and we would like to expand
+        // Players always play from their own perspective
+        auto nextStateAndPlayer = this->_game.GetNextState(state, /*player=*/1, /*action=*/node.GetAction());
+        auto nextState = nextStateAndPlayer.board;
+        // Get the board from the perspective of the other player
+        nextState = this->_game.GetCanonicalBoard(nextState, /*player=*/-1);
+
+        // The value of the new state from the perspective of the other player
+        auto optValue = this->_game.GetRewardForPlayer(nextState, /*player=*/1);
+
+        if (optValue.has_value()) {
+            value = optValue.value();
+            // If the game has not ended:
+            // EXPAND
+            auto pred = model.predict(nextState);
+            actionProbs = pred.actionProbs;
+            value = pred.value;
+            auto valid_moves = this->_game.GetValidMoves(nextState);
+            // Mask and normalize
+            actionProbs = MaskInvalidMovesAndNormalize(actionProbs, validMoves);
+            node.Expand(nextState, value, actionProbs);
+        }
+
+        this->BackPropagate(searchPath, value, parent.GetPlayerId() * -1);
+    }
+
+    return root;
+}
 
 
-//     for (int i = 0; i < numSimulations; i++) {            
-//         Node node = root;
-//         std::vector<Node> searchPath = { node };
-
-//         // SELECT
-//         while (node.IsExpanded()) {
-//             node = node.SelectChild();
-//             searchPath.push_back(node);
-//         }
-
-//         Node parent = searchPath[searchPath.size() - 2];
-//         state = parent.GetState();
-//         // Now we're at a leaf node and we would like to expand
-//         // Players always play from their own perspective
-//         auto nextStateAndPlayer = this->_game.GetNextState(state, /*player=*/1, /*action=*/node.GetAction());
-//         auto nextState = nextStateAndPlayer.board;
-//         // Get the board from the perspective of the other player
-//         nextState = this->_game.GetCanonicalBoard(nextState, /*player=*/-1);
-
-//         // The value of the new state from the perspective of the other player
-//         auto optValue = this->_game.GetRewardForPlayer(nextState, /*player=*/1);
-
-//         if (optValue.has_value()) {
-//             value = optValue.value();
-//             // If the game has not ended:
-//             // EXPAND
-//             auto res = model.predict(nextState);
-//             auto valid_moves = this->_game.GetValidMoves(nextState);
-//             // Mask and normalize
-
-//         }
-
-
-
-//     }
-// }
-
+void MCTS::BackPropagate(std::vector<Node> searchPath, float value, int toPlay) {
+    for (auto& node : searchPath) {
+        if (node.GetPlayerId() == toPlay) {
+            node.AccumulateValue(value);
+        } else {
+            node.AccumulateValue(-value);
+        }
+        
+        node.IncrementVisitCount();
+    }
+}

@@ -32,7 +32,7 @@ class MCTS {
 public:
     MCTS(Connect2Game game, Connect2Model model, int numSimluations);
     Node Run(Connect2Model model, std::vector<int> state, int toPlay);
-    static void MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vector<int> validMoves);
+    static std::vector<float> MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vector<int> validMoves);
 private:
     void BackPropagate(std::vector<Node> searchPath, float value, int toPlay);
     Connect2Game _game;

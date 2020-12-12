@@ -27,7 +27,6 @@ TEST(MCTSTests, NodeCanExpandCorrectly) {
 }
 
 TEST(MCTSTests, CanMaskAndNormalize_AllValid) {
-
     std::vector<float> actionProbs = {0.25, 0.25, 0.25, 0.25};
     std::vector<int> validMoves = {1, 1, 1, 1};
 
@@ -39,3 +38,38 @@ TEST(MCTSTests, CanMaskAndNormalize_AllValid) {
     ASSERT_EQ(actionProbs[0], 0.25);
 }
 
+TEST(MCTSTests, CanMaskAndNormalize_AllMasked) {
+    std::vector<float> actionProbs = {0.25, 0.25, 0.25, 0.25};
+    std::vector<int> validMoves = {0, 0, 0, 0};
+
+    actionProbs = MCTS::MaskInvalidMovesAndNormalize(actionProbs, validMoves);
+
+    ASSERT_EQ(actionProbs[0], 0);
+    ASSERT_EQ(actionProbs[1], 0);
+    ASSERT_EQ(actionProbs[2], 0);
+    ASSERT_EQ(actionProbs[3], 0);
+}
+
+TEST(MCTSTests, CanMaskAndNormalize_PartialMask1) {
+    std::vector<float> actionProbs = {0.25, 0.25, 0.25, 0.25};
+    std::vector<int> validMoves = {1, 1, 0, 0};
+
+    actionProbs = MCTS::MaskInvalidMovesAndNormalize(actionProbs, validMoves);
+
+    ASSERT_EQ(actionProbs[0], 0.5);
+    ASSERT_EQ(actionProbs[1], 0.5);
+    ASSERT_EQ(actionProbs[2], 0);
+    ASSERT_EQ(actionProbs[3], 0);
+}
+
+TEST(MCTSTests, CanMaskAndNormalize_PartialMask2) {
+    std::vector<float> actionProbs = {0.25, 0.25, 0.25, 0.25};
+    std::vector<int> validMoves = {1, 0, 0, 1};
+
+    actionProbs = MCTS::MaskInvalidMovesAndNormalize(actionProbs, validMoves);
+
+    ASSERT_EQ(actionProbs[0], 0.5);
+    ASSERT_EQ(actionProbs[1], 0);
+    ASSERT_EQ(actionProbs[2], 0);
+    ASSERT_EQ(actionProbs[3], 0.5);
+}

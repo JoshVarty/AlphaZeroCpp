@@ -100,7 +100,7 @@ MCTS::MCTS(Connect2Game game, Connect2Model model, int numSimluations) :
  _numSimulations(numSimluations) { 
 }
 
-void MCTS::MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vector<int> validMoves) {
+std::vector<float> MCTS::MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vector<int> validMoves) {
     // Mask out invalid moves
     std::transform(actionProbs.begin(), actionProbs.end(),
                     validMoves.begin(), 
@@ -108,11 +108,14 @@ void MCTS::MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vec
                     std::multiplies<float>());
 
     // // Normalize remaining probabilities
-    float sumOfValidProbs = std::accumulate(actionProbs.begin(), actionProbs.end(), 0);
+    float kEps = 1e-9;
+    float sumOfValidProbs = std::accumulate(actionProbs.begin(), actionProbs.end(), 0.0) + kEps;
     
     std::transform(actionProbs.begin(), actionProbs.end(),
                     actionProbs.begin(),
                     [&sumOfValidProbs] (float prob) -> float { return prob / sumOfValidProbs; });
+
+    return actionProbs;
 }
 
 

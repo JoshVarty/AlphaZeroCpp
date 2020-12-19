@@ -74,7 +74,7 @@ TEST(MCTSTests, CanMaskAndNormalize_PartialMask2) {
     ASSERT_EQ(actionProbs[3], 0.5);
 }
 
-TEST(MCTSTests, Backup_OneNode) {
+TEST(MCTSTests, Backup_OneNode_PositiveValue) {
     int prior = 0.5;
     int toPlay = 1;
     int action = 0;
@@ -82,9 +82,114 @@ TEST(MCTSTests, Backup_OneNode) {
 
     std::vector<Node*> searchPath = { &node };
 
-    int val = 1;
+    float val = 1.0;
     MCTS::Backup(searchPath, val, toPlay);
 
-    ASSERT_EQ(searchPath[0]->GetValue(), 1.0);
-    ASSERT_EQ(searchPath[0]->GetVisitCount(), 1);
+    ASSERT_EQ(node.GetValue(), 1.0);
+    ASSERT_EQ(node.GetVisitCount(), 1);
+}
+
+TEST(MCTSTests, Backup_OneNode_PositiveValue2) {
+    int prior = 0.5;
+    int toPlay = 1;
+    int action = 0;
+    Node node(prior, toPlay, action);
+
+    std::vector<Node*> searchPath = { &node };
+
+    float val = 0.75;
+    MCTS::Backup(searchPath, val, toPlay);
+
+    ASSERT_EQ(node.GetValue(), 0.75);
+    ASSERT_EQ(node.GetVisitCount(), 1);
+}
+
+TEST(MCTSTests, Backup_OneNode_PositiveValue3) {
+    int prior = 0.5;
+    int toPlay = 1;
+    int action = 0;
+    Node node(prior, toPlay, action);
+
+    std::vector<Node*> searchPath = { &node };
+
+    float val = 0.75;
+    toPlay = -1; // <- From perspective of opponent
+    MCTS::Backup(searchPath, val, toPlay);
+
+    ASSERT_EQ(node.GetValue(), -0.75);
+    ASSERT_EQ(node.GetVisitCount(), 1);
+}
+
+TEST(MCTSTests, Backup_OneNode_NegativeValue) {
+    int prior = 0.5;
+    int toPlay = 1;
+    int action = 0;
+    Node node(prior, toPlay, action);
+
+    std::vector<Node*> searchPath = { &node };
+
+    float val = -1.0;
+    MCTS::Backup(searchPath, val, toPlay);
+
+    ASSERT_EQ(node.GetValue(), -1.0);
+    ASSERT_EQ(node.GetVisitCount(), 1);
+}
+
+TEST(MCTSTests, Backup_OneNode_TwoBackupsOneValue) {
+    int prior = 0.5;
+    int toPlay = 1;
+    int action = 0;
+    Node node(prior, toPlay, action);
+
+    std::vector<Node*> searchPath = { &node };
+
+    float val = 1.0;
+    MCTS::Backup(searchPath, val, toPlay);
+    
+    //Another backup with the same value
+    MCTS::Backup(searchPath, val, toPlay);
+
+    ASSERT_EQ(node.GetValue(), 1.0);
+    ASSERT_EQ(node.GetVisitCount(), 2);
+}
+
+TEST(MCTSTests, Backup_OneNode_TwoBackupsTwoValues) {
+    int prior = 0.5;
+    int toPlay = 1;
+    int action = 0;
+    Node node(prior, toPlay, action);
+
+    std::vector<Node*> searchPath = { &node };
+
+    float val = 1.0;
+    MCTS::Backup(searchPath, val, toPlay);
+    
+    val = -1.0;
+    //Another backup with the same value
+    MCTS::Backup(searchPath, val, toPlay);
+
+    ASSERT_EQ(node.GetValue(), 0.0);
+    ASSERT_EQ(node.GetVisitCount(), 2);
+}
+
+TEST(MCTSTests, Backup_TwoNodes_PositiveValue) {
+    int prior = 0.5;
+    int toPlay = 1;
+    int action = 0;
+    Node node1(prior, toPlay, action);
+    
+    toPlay = -1;
+    Node node2(prior, toPlay, action);
+
+    std::vector<Node*> searchPath = { &node1, &node2 };
+
+    float val = 1.0;
+    toPlay = 1;
+    MCTS::Backup(searchPath, val, toPlay);
+
+    ASSERT_EQ(node1.GetValue(), 1.0);
+    ASSERT_EQ(node1.GetVisitCount(), 1);
+    
+    ASSERT_EQ(node2.GetValue(), -1.0);
+    ASSERT_EQ(node2.GetVisitCount(), 1);
 }

@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(AlphaZeroCpp)
 
+set(CMAKE_CXX_STANDARD 17) 
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_package(Torch REQUIRED)
 
 add_executable(AlphaZeroCpp main.cpp)
 target_link_libraries(AlphaZeroCpp "${TORCH_LIBRARIES}")
-set_property(TARGET AlphaZeroCpp PROPERTY CXX_STANDARD 14)
+set_property(TARGET AlphaZeroCpp PROPERTY CXX_STANDARD 17)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 

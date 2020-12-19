@@ -73,3 +73,18 @@ TEST(MCTSTests, CanMaskAndNormalize_PartialMask2) {
     ASSERT_EQ(actionProbs[2], 0);
     ASSERT_EQ(actionProbs[3], 0.5);
 }
+
+TEST(MCTSTests, Backup_OneNode) {
+    int prior = 0.5;
+    int toPlay = 1;
+    int action = 0;
+    Node node(prior, toPlay, action);
+
+    std::vector<Node*> searchPath = { &node };
+
+    int val = 1;
+    MCTS::Backup(searchPath, val, toPlay);
+
+    ASSERT_EQ(searchPath[0]->GetValue(), 1.0);
+    ASSERT_EQ(searchPath[0]->GetVisitCount(), 1);
+}

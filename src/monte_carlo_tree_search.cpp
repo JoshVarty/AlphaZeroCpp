@@ -134,15 +134,15 @@ Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay, int numS
 
     for (int i = 0; i < numSimulations; i++) {            
         Node node = root;
-        std::vector<Node> searchPath = { node };
+        std::vector<Node*> searchPath = { &node };
 
         // SELECT
         while (node.IsExpanded()) {
             node = node.SelectChild();
-            searchPath.push_back(node);
+            searchPath.push_back(&node);
         }
 
-        Node parent = searchPath[searchPath.size() - 2];
+        Node parent = *(searchPath[searchPath.size() - 2]);
         state = parent.GetState();
         // Now we're at a leaf node and we would like to expand
         // Players always play from their own perspective
@@ -167,21 +167,21 @@ Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay, int numS
             node.Expand(nextState, value, actionProbs);
         }
 
-        this->BackPropagate(searchPath, value, parent.GetPlayerId() * -1);
+        this->Backup(searchPath, value, parent.GetPlayerId() * -1);
     }
 
     return root;
 }
 
-
-void MCTS::BackPropagate(std::vector<Node> searchPath, float value, int toPlay) {
+void MCTS::Backup(std::vector<Node*> searchPath, float value, int toPlay) {
     for (auto& node : searchPath) {
-        if (node.GetPlayerId() == toPlay) {
-            node.AccumulateValue(value);
+        if (node->GetPlayerId() == toPlay) {
+            node->AccumulateValue(value);
         } else {
-            node.AccumulateValue(-value);
+            node->AccumulateValue(-value);
         }
-        
-        node.IncrementVisitCount();
+
+        node->IncrementVisitCount();
     }
 }
+

@@ -12,6 +12,7 @@ public:
     bool IsExpanded();
     float GetValue();
     int GetPlayerId() { return _toPlay; };
+    int GetVisitCount() { return _visitCount; };
     int SelectAction(float temperature);
     Node SelectChild();
     void Expand(std::vector<int> state, int toPlay, std::vector<float> actionProbs);
@@ -36,8 +37,8 @@ public:
     MCTS(Connect2Game game, Connect2Model model, int numSimluations);
     Node Run(Connect2Model model, std::vector<int> state, int toPlay, int numSimulations);
     static std::vector<float> MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vector<int> validMoves);
+    static void Backup(std::vector<Node*> searchPath, float value, int toPlay);
 private:
-    void BackPropagate(std::vector<Node> searchPath, float value, int toPlay);
     Connect2Game _game;
     Connect2Model _model;
     int _numSimulations;

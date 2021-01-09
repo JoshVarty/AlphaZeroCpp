@@ -64,12 +64,12 @@ float Node::_UcbScore(Node parent, Node child) {
     return value_score + prior_score;
 }
 
-Node Node::SelectChild() {
+Node* Node::SelectChild() {
     float bestScore = std::numeric_limits<float>::min();
-    Node bestChild = _children.front();
+    Node* bestChild = _children.front();
 
     for (auto child : _children) {
-        auto score = this->_UcbScore(*this, child);
+        auto score = this->_UcbScore(*this, *child);
         if (score > bestScore) {
             bestScore = bestScore;
             bestChild = child;
@@ -94,11 +94,9 @@ void Node::Expand(std::vector<int> state, int toPlay, std::vector<float> actionP
     }
 }
 
-MCTS::MCTS(Connect2Game game, Connect2Model model, int numSimluations) :
+MCTS::MCTS(ConnectXGame& game, Model& model) :
  _game(game),
- _model(model),
- _numSimulations(numSimluations) { 
-}
+ _model(model) {}
 
 std::vector<float> MCTS::MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vector<int> validMoves) {
     // Mask out invalid moves
@@ -118,9 +116,7 @@ std::vector<float> MCTS::MaskInvalidMovesAndNormalize(std::vector<float> actionP
     return actionProbs;
 }
 
-
-
-Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay, int numSimulations) {
+Node MCTS::Run(Model& model, std::vector<int> state, int toPlay, int numSimulations) {
 
     auto root = Node(0, toPlay, -1);
 
@@ -133,20 +129,20 @@ Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay, int numS
     root.Expand(state, toPlay, actionProbs);
 
     for (int i = 0; i < numSimulations; i++) {            
-        Node node = root;
-        std::vector<Node*> searchPath = { &node };
+        Node* node = &root;
+        std::vector<Node*> searchPath = { node };
 
         // SELECT
-        while (node.IsExpanded()) {
-            node = node.SelectChild();
-            searchPath.push_back(&node);
+        while (node->IsExpanded()) {
+            node = node->SelectChild();
+            searchPath.push_back(node);
         }
 
         Node parent = *(searchPath[searchPath.size() - 2]);
         state = parent.GetState();
         // Now we're at a leaf node and we would like to expand
         // Players always play from their own perspective
-        auto nextStateAndPlayer = this->_game.GetNextState(state, /*player=*/1, /*action=*/node.GetAction());
+        auto nextStateAndPlayer = this->_game.GetNextState(state, /*player=*/1, /*action=*/node->GetAction());
         auto nextState = nextStateAndPlayer.board;
         // Get the board from the perspective of the other player
         nextState = this->_game.GetCanonicalBoard(nextState, /*player=*/-1);
@@ -164,7 +160,7 @@ Node MCTS::Run(Connect2Model model, std::vector<int> state, int toPlay, int numS
             auto valid_moves = this->_game.GetValidMoves(nextState);
             // Mask and normalize
             actionProbs = MaskInvalidMovesAndNormalize(actionProbs, validMoves);
-            node.Expand(nextState, value, actionProbs);
+            node->Expand(nextState, value, actionProbs);
         }
 
         this->Backup(searchPath, value, parent.GetPlayerId() * -1);
@@ -184,4 +180,3 @@ void MCTS::Backup(std::vector<Node*> searchPath, float value, int toPlay) {
         node->IncrementVisitCount();
     }
 }
-

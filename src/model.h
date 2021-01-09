@@ -18,12 +18,23 @@ struct ActionProbsAndValue
     float value;
 };
 
+struct Model {
 
-struct Connect2Model : torch::nn::Module {
-
-    Connect2Model(int boardSize, int actionSize, torch::Device device) : 
+    Model(int boardSize, int actionSize) :
     _boardSize(boardSize),
-    _actionSize(actionSize),
+    _actionSize(actionSize) {}
+
+    int _boardSize;
+    int _actionSize;
+
+    virtual ActionProbsAndValueTensor forward(torch::Tensor input) = 0;
+    virtual ActionProbsAndValue predict(std::vector<int> board) = 0;
+};
+
+struct Connect2Model : torch::nn::Module, Model {
+
+    Connect2Model(int boardSize, int actionSize, torch::Device device) :
+    Model(boardSize, actionSize),
     _device(device),
     _fc1(register_module("_fc1", torch::nn::Linear(boardSize, 16))),
     _fc2(register_module("_fc2", torch::nn::Linear(16, 16))),
@@ -33,7 +44,7 @@ struct Connect2Model : torch::nn::Module {
         this->to(device);
     }
 
-    ActionProbsAndValueTensor forward(torch::Tensor input) {
+    ActionProbsAndValueTensor forward(torch::Tensor input) override {
         auto x = torch::relu(_fc1(input));
         x = torch::relu(_fc2(x));
 
@@ -50,7 +61,7 @@ struct Connect2Model : torch::nn::Module {
         return returnVal;
     }
 
-    ActionProbsAndValue predict(std::vector<int> board) {
+    ActionProbsAndValue predict(std::vector<int> board) override {
         this->eval();
 
         auto opts = torch::TensorOptions().dtype(torch::kInt32);
@@ -70,8 +81,6 @@ struct Connect2Model : torch::nn::Module {
         return apv;
     }
 
-    int _boardSize;
-    int _actionSize;
     torch::Device _device;
 
     torch::nn::Linear _fc1;

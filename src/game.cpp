@@ -3,11 +3,11 @@
 #include <functional>
 
 
-std::vector<int> Connect2Game::GetInitBoard() {
+std::vector<int> Connect2Game::GetInitBoard() const {
     return {0, 0, 0, 0};
 }
 
-StateAndPlayer Connect2Game::GetNextState(std::vector<int> board, int player, int action) {
+StateAndPlayer Connect2Game::GetNextState(std::vector<int> board, int player, int action) const {
     std::vector<int> new_board(board);
 
     new_board[action] = player;
@@ -16,7 +16,7 @@ StateAndPlayer Connect2Game::GetNextState(std::vector<int> board, int player, in
     return nextStateAndPlayer;
 }
 
-std::vector<int> Connect2Game::GetValidMoves(std::vector<int> board) {
+std::vector<int> Connect2Game::GetValidMoves(std::vector<int> board) const {
     std::vector<int> valid_moves = {0, 0, 0, 0};
 
     for(int i = 0; i < columns; i++) {
@@ -28,7 +28,7 @@ std::vector<int> Connect2Game::GetValidMoves(std::vector<int> board) {
     return valid_moves;
 }
 
-bool Connect2Game::HasLegalMoves(std::vector<int> board) {
+bool Connect2Game::HasLegalMoves(std::vector<int> board) const {
 
     for (int i = 0; i < columns; i++) {
         if (board[i] == 0)
@@ -38,7 +38,7 @@ bool Connect2Game::HasLegalMoves(std::vector<int> board) {
     return false;
 }
 
-bool Connect2Game::IsWin(std::vector<int> board, int player) {
+bool Connect2Game::IsWin(std::vector<int> board, int player) const {
     int count = 0;
 
     for(int i = 0; i < columns; i++) {
@@ -57,7 +57,7 @@ bool Connect2Game::IsWin(std::vector<int> board, int player) {
     return false;
 }
 
-std::optional<int> Connect2Game::GetRewardForPlayer(std::vector<int> board, int player) {
+std::optional<int> Connect2Game::GetRewardForPlayer(std::vector<int> board, int player) const {
 
     if (IsWin(board, player)) {
         return 1;
@@ -72,7 +72,7 @@ std::optional<int> Connect2Game::GetRewardForPlayer(std::vector<int> board, int 
     return std::nullopt;
 }
 
-std::vector<int> Connect2Game::GetCanonicalBoard(std::vector<int> old_board, int player) {
+std::vector<int> Connect2Game::GetCanonicalBoard(std::vector<int> old_board, int player) const {
     std::vector<int> board(old_board);
     std::transform(board.begin(), board.end(), board.begin(),
                std::bind(std::multiplies<int>(), std::placeholders::_1, -1));

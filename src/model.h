@@ -61,7 +61,7 @@ struct Connect2Model : torch::nn::Module, Model {
         torch::from_blob(board.data(), board.size(), opts).to(torch::kFloat32);
     input = input.view({1, board_size});
 
-    torch::NoGradGuard guard;  // Is this needed?
+    torch::NoGradGuard guard;
 
     ActionProbsAndValueTensor result = this->forward(input);
 

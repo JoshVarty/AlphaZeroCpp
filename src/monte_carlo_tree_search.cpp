@@ -74,7 +74,7 @@ void Node::Expand(const std::vector<int>& state, int to_play,
   this->to_play_ = to_play;
   this->state_ = state;
 
-  for (int action = 0; action < action_probs.size(); ++action) {
+  for (size_t action = 0; action < action_probs.size(); ++action) {
     auto prior_prob = action_probs[action];
     if (prior_prob != 0.0f) {
       Node* new_child = new Node(prior_prob, to_play, action);

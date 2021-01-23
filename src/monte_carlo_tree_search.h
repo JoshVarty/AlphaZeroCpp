@@ -1,47 +1,56 @@
 #ifndef MCTS_H
 #define MCTS_H
 
-#include <torch/torch.h>
 #include <game.h>
 #include <model.h>
+#include <torch/torch.h>
+
 #include <random>
 
 class Node {
-public:
-    Node(float prior, int toPlay, int action);
-    bool IsExpanded();
-    float GetValue();
-    int GetPlayerId() { return _toPlay; };
-    int GetVisitCount() { return _visitCount; };
-    int SelectAction(float temperature);
-    Node* SelectChild();
-    void Expand(std::vector<int> state, int toPlay, std::vector<float> actionProbs);
-    std::vector<int> GetState() { return _state; };
-    int GetAction() { return _action; };
-    void AccumulateValue(float val) { _valueSum += val; };
-    void IncrementVisitCount() { _visitCount++; };
-private:
-    int _visitCount = 0;
-    int _toPlay = 0;
-    int _action = -1;
-    float _prior = 0;
-    float _valueSum = 0;
-    std::vector<Node*> _children;
-    std::vector<int> _state;
-    std::default_random_engine _generator;
-    float _UcbScore(Node parent, Node child);
+ public:
+  Node(float prior, int toPlay, int action);
+
+  int GetVisitCount() const { return visit_count_; };
+  int GetPlayerId() const { return to_play_; };
+  int GetAction() const { return action_; };
+  std::vector<int> GetState() const { return state_; };
+  void AccumulateValue(float val) { value_sum_ += val; };
+  void IncrementVisitCount() { ++visit_count_; };
+
+  void Expand(const std::vector<int>& state, int to_play,
+              const std::vector<float>& action_probs);
+  bool IsExpanded();
+  float GetValue();
+  int SelectAction(float temperature);
+  Node* SelectChild();
+
+ private:
+  int visit_count_ = 0;
+  int to_play_ = 0;
+  int action_ = -1;
+  float prior_ = 0;
+  float value_sum_ = 0;
+  std::vector<Node*> children_;
+  std::vector<int> state_;
+  std::default_random_engine generator_;
+  float UcbScore_(Node* parent, Node* child);
 };
 
 class MCTS {
-public:
-    MCTS(ConnectXGame& game, Model& model);
-    Node Run(Model& model, std::vector<int> state, int toPlay, int numSimulations);
-    static std::vector<float> MaskInvalidMovesAndNormalize(std::vector<float> actionProbs, std::vector<int> validMoves);
-    static void Backup(std::vector<Node*> searchPath, float value, int toPlay);
-private:
-    ConnectXGame& _game;
-    Model& _model;
+ public:
+  MCTS(ConnectXGame& game, Model& model);
+
+  static std::vector<float> MaskInvalidMovesAndNormalize(
+      std::vector<float>& action_probs, const std::vector<int>& valid_moves);
+  static void Backup(const std::vector<Node*>& search_path, float value, int to_play);
+
+  Node* Run(Model& model, std::vector<int>& state, int to_play,
+            int num_simulations);
+
+ private:
+  ConnectXGame& game_;
+  Model& model_;
 };
 
-
-#endif 
+#endif /* MCTS_H */

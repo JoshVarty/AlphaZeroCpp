@@ -6,87 +6,81 @@
 // During training, we need to keep a copy of the original tensors
 // so we can create a loss and backprop through everything.
 struct ActionProbsAndValueTensor {
-    torch::Tensor actionProbs;
-    torch::Tensor value;
+  torch::Tensor action_probs;
+  torch::Tensor value;
 };
 
-// During prediction, we simply want the raw numerical values for 
+// During prediction, we simply want the raw numerical values for
 // actionProbs and our value.
-struct ActionProbsAndValue
-{
-    std::vector<float> actionProbs;
-    float value;
+struct ActionProbsAndValue {
+  std::vector<float> action_probs;
+  float value;
 };
 
 struct Model {
+  Model(int board_size, int action_size)
+      : board_size(board_size), action_size(action_size) {}
 
-    Model(int boardSize, int actionSize) :
-    _boardSize(boardSize),
-    _actionSize(actionSize) {}
+  int board_size;
+  int action_size;
 
-    int _boardSize;
-    int _actionSize;
-
-    virtual ActionProbsAndValueTensor forward(torch::Tensor input) = 0;
-    virtual ActionProbsAndValue predict(std::vector<int> board) = 0;
+  virtual ActionProbsAndValueTensor forward(const torch::Tensor& input) = 0;
+  virtual ActionProbsAndValue predict(std::vector<int>& board) = 0;
 };
 
 struct Connect2Model : torch::nn::Module, Model {
+  Connect2Model(int board_size, int action_size, torch::Device device)
+      : Model(board_size, action_size),
+        device(device),
+        fc1(register_module("fc1", torch::nn::Linear(board_size, 16))),
+        fc2(register_module("fc2", torch::nn::Linear(16, 16))),
+        action_head(
+            register_module("action_head", torch::nn::Linear(16, action_size))),
+        value_head(register_module("value_head", torch::nn::Linear(16, 1))) {
+    this->to(device);
+  }
 
-    Connect2Model(int boardSize, int actionSize, torch::Device device) :
-    Model(boardSize, actionSize),
-    _device(device),
-    _fc1(register_module("_fc1", torch::nn::Linear(boardSize, 16))),
-    _fc2(register_module("_fc2", torch::nn::Linear(16, 16))),
-    _actionHead(register_module("_actionHead", torch::nn::Linear(16, actionSize))),
-    _valueHead(register_module("_valueHead", torch::nn::Linear(16, 1)))
-    {
-        this->to(device);
-    }
+  ActionProbsAndValueTensor forward(const torch::Tensor& input) override {
+    auto x = torch::relu(fc1(input));
+    x = torch::relu(fc2(x));
 
-    ActionProbsAndValueTensor forward(torch::Tensor input) override {
-        auto x = torch::relu(_fc1(input));
-        x = torch::relu(_fc2(x));
+    auto action_logits = action_head(x);
+    auto value_logit = value_head(x);
 
-        auto action_logits = _actionHead(x);
-        auto value_logit = _valueHead(x);
+    auto action_probs = torch::softmax(action_logits, 1);
+    auto value = torch::tanh(value_logit);
 
-        auto actionProbs = torch::softmax(action_logits, 1);
-        auto value = torch::tanh(value_logit);
+    return {action_probs, value};
+  }
 
-        ActionProbsAndValueTensor returnVal;
-        returnVal.actionProbs = actionProbs;
-        returnVal.value = value;
+  ActionProbsAndValue predict(std::vector<int>& board) override {
+    this->eval();
 
-        return returnVal;
-    }
+    auto opts = torch::TensorOptions().dtype(torch::kInt32);
+    auto input =
+        torch::from_blob(board.data(), board.size(), opts).to(torch::kFloat32);
+    input = input.view({1, board_size});
 
-    ActionProbsAndValue predict(std::vector<int> board) override {
-        this->eval();
+    torch::NoGradGuard guard;
 
-        auto opts = torch::TensorOptions().dtype(torch::kInt32);
-        auto input = torch::from_blob(board.data(), board.size(), opts).to(torch::kFloat32);
-        input = input.view({1, _boardSize});
+    ActionProbsAndValueTensor result = this->forward(input);
 
-        torch::NoGradGuard guard;
+    // Unpack values from tensors into primitive types
+    auto action_probs_tensor = result.action_probs.cpu();
+    auto value = result.value.cpu().item<float>();
+    std::vector<float> action_probs(
+        action_probs_tensor.data_ptr<float>(),
+        action_probs_tensor.data_ptr<float>() + action_probs_tensor.numel());
 
-        ActionProbsAndValueTensor result = this->forward(input);
+    return {action_probs, value};
+  }
 
-        // Unpack values from tensors into primitive types
-        auto actionProbsTensor = result.actionProbs.cpu();
-        auto value = result.value.cpu().item<float>();
-        std::vector<float> actionProbs(actionProbsTensor.data_ptr<float>(), actionProbsTensor.data_ptr<float>() + actionProbsTensor.numel());
+  torch::Device device;
 
-        ActionProbsAndValue apv = { actionProbs, value };
-        return apv;
-    }
-
-    torch::Device _device;
-
-    torch::nn::Linear _fc1;
-    torch::nn::Linear _fc2;
-    torch::nn::Linear _actionHead;
-    torch::nn::Linear _valueHead;
+  torch::nn::Linear fc1;
+  torch::nn::Linear fc2;
+  torch::nn::Linear action_head;
+  torch::nn::Linear value_head;
 };
 
 #endif /* MODEL_H */

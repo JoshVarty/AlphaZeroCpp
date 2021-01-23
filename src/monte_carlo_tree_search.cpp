@@ -105,12 +105,12 @@ std::vector<float> MCTS::MaskInvalidMovesAndNormalize(
   return action_probs;
 }
 
-Node* MCTS::Run(Model& model, std::vector<int>& state, int to_play,
+Node* MCTS::Run(std::vector<int>& state, int to_play,
                 int num_simulations) {
   Node* root = new Node(0, to_play, -1);
 
   // Expand root
-  auto result = model.predict(state);
+  auto result = model_.predict(state);
   auto action_probs = result.action_probs;
   auto value = result.value;
   auto valid_moves = this->game_.GetValidMoves(state);
@@ -144,7 +144,7 @@ Node* MCTS::Run(Model& model, std::vector<int>& state, int to_play,
       value = opt_value.value();
       // If the game has not ended:
       // EXPAND
-      auto pred = model.predict(next_state);
+      auto pred = model_.predict(next_state);
       action_probs = pred.action_probs;
       value = pred.value;
       auto valid_moves = this->game_.GetValidMoves(next_state);

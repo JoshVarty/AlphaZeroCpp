@@ -24,6 +24,10 @@ class Node {
   float GetValue();
   int SelectAction(float temperature);
   Node* SelectChild();
+  Node* GetChild(int index) {
+    CHECK_LT(index, children_.size());
+    return children_[index].get();
+  }
 
  private:
   int visit_count_ = 0;

@@ -78,7 +78,7 @@ void Node::Expand(const std::vector<int>& state, int to_play,
   for (size_t action = 0; action < action_probs.size(); ++action) {
     auto prior_prob = action_probs[action];
     if (prior_prob != 0.0f) {
-      auto new_child = std::make_unique<Node>(prior_prob, to_play, action);
+      auto new_child = std::make_unique<Node>(prior_prob, -to_play, action);
       this->children_.push_back(std::move(new_child));
     }
   }
@@ -140,8 +140,7 @@ Node* MCTS::Run(std::vector<int>& state, int to_play,
     // The value of the new state from the perspective of the other player
     auto opt_value = this->game_.GetRewardForPlayer(next_state, /*player=*/1);
 
-    if (opt_value.has_value()) {
-      value = opt_value.value();
+    if (!opt_value.has_value()) {
       // If the game has not ended:
       // EXPAND
       auto pred = model_.predict(next_state);
@@ -150,7 +149,9 @@ Node* MCTS::Run(std::vector<int>& state, int to_play,
       auto valid_moves = this->game_.GetValidMoves(next_state);
       // Mask and normalize
       action_probs = MaskInvalidMovesAndNormalize(action_probs, valid_moves);
-      node->Expand(next_state, value, action_probs);
+      node->Expand(next_state, -parent->GetPlayerId(), action_probs);
+    } else {
+      value = opt_value.value();
     }
 
     this->Backup(search_path, value, -parent->GetPlayerId());

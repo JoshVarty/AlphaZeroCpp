@@ -17,7 +17,7 @@ int Node::SelectAction(float temperature) {
   int max_action = -1, max_visit_count = -1;
 
   for (size_t i = 0; i < children_.size(); ++i) {
-    auto child = children_[i];
+    Node* child = children_[i].get();
     actions.push_back(child->action_);
     visit_counts.push_back(child->visit_count_);
 
@@ -56,9 +56,10 @@ float Node::UcbScore_(Node* parent, Node* child) {
 
 Node* Node::SelectChild() {
   float best_score = std::numeric_limits<float>::min();
-  Node* best_child = children_.front();
+  Node* best_child = children_.front().get();
 
-  for (auto child : children_) {
+  for (auto&& child_ptr : children_) {
+    auto child = child_ptr.get();
     auto score = this->UcbScore_(this, child);
     if (score > best_score) {
       best_score = score;
@@ -77,8 +78,8 @@ void Node::Expand(const std::vector<int>& state, int to_play,
   for (size_t action = 0; action < action_probs.size(); ++action) {
     auto prior_prob = action_probs[action];
     if (prior_prob != 0.0f) {
-      Node* new_child = new Node(prior_prob, to_play, action);
-      this->children_.push_back(new_child);
+      auto new_child = std::make_unique<Node>(prior_prob, to_play, action);
+      this->children_.push_back(std::move(new_child));
     }
   }
 }

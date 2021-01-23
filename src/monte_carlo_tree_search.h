@@ -31,7 +31,7 @@ class Node {
   int action_ = -1;
   float prior_ = 0;
   float value_sum_ = 0;
-  std::vector<Node*> children_;
+  std::vector<std::unique_ptr<Node>> children_;
   std::vector<int> state_;
   std::default_random_engine generator_;
   float UcbScore_(Node* parent, Node* child);

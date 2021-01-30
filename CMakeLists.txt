@@ -6,16 +6,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Torch REQUIRED)
 
-add_executable(AlphaZeroCpp main.cpp)
-target_link_libraries(AlphaZeroCpp "${TORCH_LIBRARIES}")
-set_property(TARGET AlphaZeroCpp PROPERTY CXX_STANDARD 17)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-
 # Find all relevant files in /src
 include_directories(${CMAKE_SOURCE_DIR}/src)
 get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
 
+foreach(dir ${dirs})
+    file(GLOB_RECURSE SOURCE ${dir}/*.[ch]*)
+    set(SOURCE_FILES "${SOURCE_FILES}" ${SOURCE})
+endforeach()
+
+set(SOURCE_FILES "${SOURCE_FILES}" main.cpp)
+add_executable(AlphaZeroCpp "${SOURCE_FILES}")
+target_link_libraries(AlphaZeroCpp "${TORCH_LIBRARIES}")
+set_property(TARGET AlphaZeroCpp PROPERTY CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+unset(SOURCE_FILES)
 foreach(dir ${dirs})
     file(GLOB_RECURSE SOURCE ${dir}/*.[ch]*)
     set(SOURCE_FILES "${SOURCE_FILES}" ${SOURCE})

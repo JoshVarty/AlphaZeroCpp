@@ -3,11 +3,21 @@
 #include <iostream>
 
 #include "game.h"
+#include "model.h"
 
 int main() {
-  torch::Tensor ten = torch::rand(
-      {12, 12}, torch::TensorOptions(torch::kCPU).dtype(at::kFloat));
-  std::vector<float> v(ten.data_ptr<float>(),
-                       ten.data_ptr<float>() + ten.numel());
-  for (const auto& a : v) std::cout << a << std::endl;
+  auto game = Connect2Game();
+  auto board_size = game.GetBoardSize();
+  auto action_size = game.GetActionSize();
+
+  torch::Device device(torch::kCPU);
+  if(torch::cuda::is_available()) {
+    std::cout << "Setting device: torch::kCUDA";
+    device = torch::Device(torch::kCUDA);
+  } else {
+    std::cout << "Setting device: torch::kCPU";
+  }
+
+  auto model = Connect2Model(board_size, action_size, device);
+  // TODO (joshvarty): Create trainer and learn!
 }

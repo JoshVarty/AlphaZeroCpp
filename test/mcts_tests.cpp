@@ -230,10 +230,10 @@ TEST(MCTSTests, RootWithEqualPriors) {
   auto mcts = MCTS(game, model);
 
   auto root = mcts.Run(state, /*to_play=*/1, /*num_simulations=*/50);
-  auto best_inner_move = std::max(root->GetChild(1)->GetVisitCount(),
-                                  root->GetChild(2)->GetVisitCount());
-  auto best_outer_move = std::max(root->GetChild(0)->GetVisitCount(),
-                                 root->GetChild(3)->GetVisitCount());
+  auto best_inner_move = std::max(root->GetChildByAction(1)->GetVisitCount(),
+                                  root->GetChildByAction(2)->GetVisitCount());
+  auto best_outer_move = std::max(root->GetChildByAction(0)->GetVisitCount(),
+                                 root->GetChildByAction(3)->GetVisitCount());
 
   ASSERT_GT(best_inner_move, best_outer_move);
 }
@@ -242,7 +242,7 @@ TEST(MCTSTests, MCTSFindsBestMoveWithGoodPriors) {
   int board_size = 4;
   int action_size = 4;
   auto game = Connect2Game();
-  std::vector<float> action_probs = {0.26, 0.74, 0.0, 0.0};
+  std::vector<float> action_probs = {0.3, 0.7, 0.0, 0.0};
   float value = 0.0001;
   auto model = GetMockModel(action_probs, value);
   std::vector<int> state = {0, 0, 1, -1};
@@ -250,8 +250,64 @@ TEST(MCTSTests, MCTSFindsBestMoveWithGoodPriors) {
 
   auto root = mcts.Run(state, /*to_play=*/1, /*num_simulations=*/25);
 
-  auto pos_0_count = root->GetChild(0)->GetVisitCount();
-  auto pos_1_count = root->GetChild(1)->GetVisitCount();
+  auto pos_0_count = root->GetChildByAction(0)->GetVisitCount();
+  auto pos_1_count = root->GetChildByAction(1)->GetVisitCount();
 
   ASSERT_GT(pos_1_count, pos_0_count);
+}
+
+TEST(MCTSTests, MCTSFindsBestMoveWithBadPriors) {
+  int board_size = 4;
+  int action_size = 4;
+  auto game = Connect2Game();
+  std::vector<float> action_probs = {0.7, 0.3, 0.0, 0.0};
+  float value = 0.0001;
+  auto model = GetMockModel(action_probs, value);
+  std::vector<int> state = {0, 0, 1, -1};
+  auto mcts = MCTS(game, model);
+
+  auto root = mcts.Run(state, /*to_play=*/1, /*num_simulations=*/25);
+
+  auto pos_0_count = root->GetChildByAction(0)->GetVisitCount();
+  auto pos_1_count = root->GetChildByAction(1)->GetVisitCount();
+
+  ASSERT_GT(pos_1_count, pos_0_count);
+}
+
+TEST(MCTSTests, MCTSFindsBestMoveWithEqualPriors) {
+  int board_size = 4;
+  int action_size = 4;
+  auto game = Connect2Game();
+  std::vector<float> action_probs = {0.51, 0.49, 0.0, 0.0};
+  float value = 0.0001;
+  auto model = GetMockModel(action_probs, value);
+  std::vector<int> state = {0, 0, 1, -1};
+  auto mcts = MCTS(game, model);
+
+  auto root = mcts.Run(state, /*to_play=*/1, /*num_simulations=*/25);
+
+  auto pos_0_count = root->GetChildByAction(0)->GetVisitCount();
+  auto pos_1_count = root->GetChildByAction(1)->GetVisitCount();
+
+  ASSERT_GT(pos_1_count, pos_0_count);
+}
+
+TEST(MCTSTests, MCTSFindsBestMoveWithEqualPriors2) {
+  int board_size = 4;
+  int action_size = 4;
+  auto game = Connect2Game();
+  std::vector<float> action_probs = {0.1, 0.3, 0.3, 0.3};
+  float value = 0.0001;
+  auto model = GetMockModel(action_probs, value);
+  std::vector<int> state = {-1, 0, 0, 0};
+  auto mcts = MCTS(game, model);
+
+  auto root = mcts.Run(state, /*to_play=*/1, /*num_simulations=*/100);
+
+  auto pos_1_count = root->GetChildByAction(1)->GetVisitCount();
+  auto pos_2_count = root->GetChildByAction(2)->GetVisitCount();
+  auto pos_3_count = root->GetChildByAction(3)->GetVisitCount();
+
+  ASSERT_GT(pos_1_count, pos_2_count);
+  ASSERT_GT(pos_1_count, pos_3_count);
 }

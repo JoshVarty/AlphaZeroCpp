@@ -192,26 +192,40 @@ TEST(MCTSTests, Backup_TwoNodes_PositiveValue) {
   ASSERT_EQ(node2.GetVisitCount(), 1);
 }
 
-TEST(MCTSTests, RootWithEqualPriors) {
-  struct Connect2MockModel : Model {
-    Connect2MockModel(int board_size, int action_size) 
-      : Model(board_size, action_size) {}
+struct Connect2MockModel : Model {
+  std::vector<float> action_probs;
+  float value;
 
-    ActionProbsAndValueTensor forward(const torch::Tensor& input) override {
-      throw "forward() is not mocked.";
-    }
+  Connect2MockModel(int board_size, int action_size, 
+                    std::vector<float> action_probs, float value)
+    : Model(board_size, action_size), action_probs(action_probs), value(value) 
+    {}
 
-    ActionProbsAndValue predict(std::vector<int>& board) override {
-      std::vector<float> action_probs = {0.26, 0.24, 0.24, 0.26};
-      float value = 0.0001;
-      return {action_probs, value};
-    }
-  };
+  ActionProbsAndValueTensor forward(const torch::Tensor& input) override {
+    throw "forward() is not mocked.";
+  }
+
+  ActionProbsAndValue predict(std::vector<int>& board) override {
+    return {action_probs, value};
+  }
+};
+
+Connect2MockModel GetMockModel(std::vector<float> action_probs, float value) {
 
   int board_size = 4;
   int action_size = 4;
+
+  Connect2MockModel model(board_size, action_size, action_probs, value);
+  return model;
+}
+
+TEST(MCTSTests, RootWithEqualPriors) {
+  int board_size = 4;
+  int action_size = 4;
   auto game = Connect2Game();
-  auto model = Connect2MockModel(board_size, action_size);
+  std::vector<float> action_probs = {0.26, 0.24, 0.24, 0.26};
+  float value = 0.0001;
+  auto model = GetMockModel(action_probs, value);
   std::vector<int> state = {0, 0, 0, 0};
   auto mcts = MCTS(game, model);
 
@@ -224,27 +238,13 @@ TEST(MCTSTests, RootWithEqualPriors) {
   ASSERT_GT(best_inner_move, best_outer_move);
 }
 
-
 TEST(MCTSTests, MCTSFindsBestMoveWithGoodPriors) {
-  struct Connect2MockModel : Model {
-    Connect2MockModel(int board_size, int action_size) 
-      : Model(board_size, action_size) {}
-
-    ActionProbsAndValueTensor forward(const torch::Tensor& input) override {
-      throw "forward() is not mocked.";
-    }
-
-    ActionProbsAndValue predict(std::vector<int>& board) override {
-      std::vector<float> action_probs = {0.26, 0.74, 0.0, 0.0};
-      float value = 0.0001;
-      return {action_probs, value};
-    }
-  };
-
   int board_size = 4;
   int action_size = 4;
   auto game = Connect2Game();
-  auto model = Connect2MockModel(board_size, action_size);
+  std::vector<float> action_probs = {0.26, 0.74, 0.0, 0.0};
+  float value = 0.0001;
+  auto model = GetMockModel(action_probs, value);
   std::vector<int> state = {0, 0, 1, -1};
   auto mcts = MCTS(game, model);
 
@@ -255,4 +255,3 @@ TEST(MCTSTests, MCTSFindsBestMoveWithGoodPriors) {
 
   ASSERT_GT(pos_1_count, pos_0_count);
 }
-

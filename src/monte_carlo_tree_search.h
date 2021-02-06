@@ -25,7 +25,7 @@ class Node {
   int SelectAction(float temperature);
   Node* SelectChild();
   Node* GetChildByAction(int action) {
-    for(auto&& pointer : children_) {
+    for(auto&& pointer : Children) {
       if (pointer->action_ == action) {
         return pointer.get();
       }
@@ -33,7 +33,7 @@ class Node {
     throw "No child with that action: " + std::to_string(action);
   }
 
- std::vector<std::unique_ptr<Node>> children_;
+ std::vector<std::unique_ptr<Node>> Children;
  private:
   int visit_count_ = 0;
   int to_play_ = 0;

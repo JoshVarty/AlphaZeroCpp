@@ -33,13 +33,13 @@ class Node {
     throw "No child with that action: " + std::to_string(action);
   }
 
+ std::vector<std::unique_ptr<Node>> children_;
  private:
   int visit_count_ = 0;
   int to_play_ = 0;
   int action_ = -1;
   float prior_ = 0;
   float value_sum_ = 0;
-  std::vector<std::unique_ptr<Node>> children_;
   std::vector<int> state_;
   std::default_random_engine generator_;
   float UcbScore_(Node* parent, Node* child);

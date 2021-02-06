@@ -16,12 +16,17 @@ struct Example {
 
 class Trainer {
   public:
-    Trainer(Connect2Game game, Connect2Model model, uint32_t num_simulations) : 
-      game_(game), model_(model), num_simulations_(num_simulations) {}
+    Trainer(Connect2Game game, Connect2Model model, uint32_t num_simulations,
+            uint32_t training_iterations, uint32_t number_of_episodes) : 
+      game_(game), 
+      model_(model), 
+      num_simulations_(num_simulations),
+      training_iterations_(training_iterations), 
+      number_of_episodes_(number_of_episodes) {}
 
     std::vector<Example> ExecuteEpisode();
     void Learn();
-    void Train(std::vector<Example> examples);
+    void Train(const std::vector<Example>& examples);
     torch::Tensor GetProbabilityLoss();
     torch::Tensor GetValueLoss();
     void SaveCheckpoint(std::string folder, std::string filename);
@@ -30,7 +35,8 @@ class Trainer {
     Connect2Game game_;
     Connect2Model model_;
     uint32_t num_simulations_;
-
+    uint32_t training_iterations_;
+    uint32_t number_of_episodes_;
 };
 
 #endif /* TRAINER_H */

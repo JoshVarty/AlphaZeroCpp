@@ -50,3 +50,21 @@ std::vector<Example> Trainer::ExecuteEpisode() {
     }
   }
 }
+
+void Trainer::Learn() {
+  for(uint32_t i = 0; i < training_iterations_; ++i) {
+    std::cout << i << "/" << training_iterations_ << std::endl;
+
+    std::vector<Example> training_examples;
+
+    for (uint32_t episode = 0; episode < number_of_episodes_; ++episode) {
+      auto iter_training_examples = this->ExecuteEpisode();
+      training_examples.insert(training_examples.end(), 
+                               iter_training_examples.begin(),
+                               iter_training_examples.end());
+    }
+
+    std::random_shuffle(training_examples.begin(), training_examples.end());
+    this->Train(training_examples);
+  }
+}

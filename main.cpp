@@ -20,7 +20,6 @@ int main() {
   }
 
   auto model = Connect2Model(board_size, action_size, device);
-  // TODO (joshvarty): Create trainer and learn!
   auto trainer = Trainer(game, model,
                          /*num_simulations=*/100,
                          /*training_iterations=*/500,

@@ -4,6 +4,7 @@
 
 #include "game.h"
 #include "model.h"
+#include "trainer.h"
 
 int main() {
   auto game = Connect2Game();
@@ -20,4 +21,10 @@ int main() {
 
   auto model = Connect2Model(board_size, action_size, device);
   // TODO (joshvarty): Create trainer and learn!
+  auto trainer = Trainer(game, model,
+                         /*num_simulations=*/100,
+                         /*training_iterations=*/500,
+                         /*number_of_episodes=*/100);
+
+  trainer.Learn();
 }

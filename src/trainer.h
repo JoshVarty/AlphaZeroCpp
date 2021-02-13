@@ -5,7 +5,10 @@
 #include "model.h"
 #include "monte_carlo_tree_search.h"
 
+#include <experimental/filesystem>
 #include <torch/torch.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 struct Example {
   std::vector<int> canonical_board;
@@ -27,8 +30,10 @@ class Trainer {
     std::vector<Example> ExecuteEpisode();
     void Learn();
     void Train(const std::vector<Example>& examples);
-    torch::Tensor GetProbabilityLoss();
-    torch::Tensor GetValueLoss();
+    torch::Tensor GetProbabilityLoss(torch::Tensor targets,
+                                     torch::Tensor outputs);
+    torch::Tensor GetValueLoss(torch::Tensor targets,
+                               torch::Tensor outputs);
     void SaveCheckpoint(std::string folder, std::string filename);
 
   private:

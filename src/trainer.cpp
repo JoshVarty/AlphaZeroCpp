@@ -65,6 +65,33 @@ void Trainer::Learn() {
     }
 
     std::random_shuffle(training_examples.begin(), training_examples.end());
-    this->Train(training_examples);
+    //this->Train(training_examples);
+    // TODO (joshvarty): Probably want to let people change this?
+    std::string kFileName = "checkpoint";
+    //this->SaveCheckpoint("checkpoints", kFileName);
   }
+}
+
+torch::Tensor Trainer::GetProbabilityLoss(torch::Tensor targets,
+                                          torch::Tensor outputs) {
+  auto loss = -(targets * torch::log(outputs)).sum(1);
+  return loss.mean();
+}
+
+torch::Tensor Trainer::GetValueLoss(torch::Tensor targets,
+                                    torch::Tensor outputs) {
+  // loss = torch.sum((targets-outputs.view(-1))**2)/targets.size()[0]
+  auto loss = torch::sum((targets - outputs).view(-1).pow(2)) / targets.size(0);
+  return loss;
+}
+
+void Trainer::SaveCheckpoint(std::string folder, std::string filename) {
+  // if (!std::experimental::filesystem::exists(folder)) {
+  //   std::experimental::filesystem::create_directory(folder);
+  // }
+
+  // auto path = std::experimental::filesystem::path(folder);
+  // path.append(filename);
+
+  // torch::save(this->model_, path.string());
 }

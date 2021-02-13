@@ -60,6 +60,7 @@ struct Connect2Model : torch::nn::Module, Model {
     auto input =
         torch::from_blob(board.data(), board.size(), opts).to(torch::kFloat32);
     input = input.view({1, board_size});
+    input = input.to(this->device);
 
     torch::NoGradGuard guard;
 

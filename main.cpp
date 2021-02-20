@@ -13,10 +13,10 @@ int main() {
 
   torch::Device device(torch::kCPU);
   if(torch::cuda::is_available()) {
-    std::cout << "Setting device: torch::kCUDA";
+    std::cout << "Setting device: torch::kCUDA" << std::endl;
     device = torch::Device(torch::kCUDA);
   } else {
-    std::cout << "Setting device: torch::kCPU";
+    std::cout << "Setting device: torch::kCPU" << std::endl;
   }
 
   auto model = Connect2Model(board_size, action_size, device);

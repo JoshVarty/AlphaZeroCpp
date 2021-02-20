@@ -311,3 +311,23 @@ TEST(MCTSTests, MCTSFindsBestMoveWithEqualPriors2) {
   ASSERT_GT(pos_1_count, pos_2_count);
   ASSERT_GT(pos_1_count, pos_3_count);
 }
+
+TEST(MCTSTests, MCTSBlocksPlayer) {
+  int board_size = 4;
+  int action_size = 4;
+  auto game = Connect2Game();
+  std::vector<float> action_probs = {0.25, 0.25, 0.25, 0.25};
+  float value = 0.0001;
+  auto model = GetMockModel(action_probs, value);
+  std::vector<int> state = {0, 0, -1, 0};
+  auto mcts = MCTS(game, model);
+
+  auto root = mcts.Run(state, /*to_play=*/-1, /*num_simulations=*/100);
+
+  auto pos_0_count = root->GetChildByAction(0)->GetVisitCount();
+  auto pos_1_count = root->GetChildByAction(1)->GetVisitCount();
+  auto pos_3_count = root->GetChildByAction(3)->GetVisitCount();
+
+  ASSERT_LT(pos_0_count, pos_1_count);
+  ASSERT_LT(pos_0_count, pos_3_count);
+}

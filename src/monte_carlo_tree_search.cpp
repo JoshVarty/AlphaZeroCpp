@@ -55,7 +55,8 @@ float Node::UcbScore_(Node* parent, Node* child) {
 }
 
 Node* Node::SelectChild() {
-  float best_score = std::numeric_limits<float>::min();
+  // Set best_score to the most negative number we can.
+  float best_score = -std::numeric_limits<float>::max();
   Node* best_child = Children.front().get();
 
   for (auto&& child_ptr : Children) {
@@ -105,7 +106,7 @@ std::vector<float> MCTS::MaskInvalidMovesAndNormalize(
   return action_probs;
 }
 
-Node* MCTS::Run(std::vector<int>& state, int to_play,
+Node* MCTS::Run(std::vector<int> state, int to_play,
                 int num_simulations) {
   Node* root = new Node(0, to_play, -1);
 

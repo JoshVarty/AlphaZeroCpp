@@ -53,7 +53,7 @@ class MCTS {
       std::vector<float>& action_probs, const std::vector<int>& valid_moves);
   static void Backup(const std::vector<Node*>& search_path, float value, int to_play);
 
-  Node* Run(std::vector<int>& state, int to_play,
+  Node* Run(std::vector<int> state, int to_play,
             int num_simulations);
 
  private:

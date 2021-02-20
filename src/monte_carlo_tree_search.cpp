@@ -59,7 +59,7 @@ Node* Node::SelectChild() {
   float best_score = -std::numeric_limits<float>::max();
   Node* best_child = Children.front().get();
 
-  for (auto&& child_ptr : Children) {
+  for (auto& child_ptr : Children) {
     auto child = child_ptr.get();
     auto score = this->UcbScore_(this, child);
     if (score > best_score) {

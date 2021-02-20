@@ -17,15 +17,20 @@ struct Example {
   int reward;
 };
 
+struct TrainerOptions {
+  uint32_t batch_size;
+  uint32_t num_episodes;
+  uint32_t num_epochs;
+  uint32_t num_simulations;
+  uint32_t training_iterations;
+};
+
 class Trainer {
   public:
-    Trainer(Connect2Game game, Connect2Model model, uint32_t num_simulations,
-            uint32_t training_iterations, uint32_t number_of_episodes) : 
+    Trainer(Connect2Game game, Connect2Model model, TrainerOptions options) : 
       game_(game), 
-      model_(model), 
-      num_simulations_(num_simulations),
-      training_iterations_(training_iterations), 
-      number_of_episodes_(number_of_episodes) {}
+      model_(model),
+      options_(options) {}
 
     std::vector<Example> ExecuteEpisode();
     void Learn();
@@ -39,9 +44,7 @@ class Trainer {
   private:
     Connect2Game game_;
     Connect2Model model_;
-    uint32_t num_simulations_;
-    uint32_t training_iterations_;
-    uint32_t number_of_episodes_;
+    TrainerOptions options_;
 };
 
 #endif /* TRAINER_H */

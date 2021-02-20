@@ -20,10 +20,13 @@ int main() {
   }
 
   auto model = Connect2Model(board_size, action_size, device);
-  auto trainer = Trainer(game, model,
-                         /*num_simulations=*/100,
-                         /*training_iterations=*/500,
-                         /*number_of_episodes=*/100);
+  auto options = TrainerOptions();
+  options.batch_size = 64;
+  options.num_episodes = 100;
+  options.num_epochs = 1;
+  options.num_simulations = 100;
+  options.training_iterations = 500;
+  auto trainer = Trainer(game, model, options);
 
   trainer.Learn();
 }

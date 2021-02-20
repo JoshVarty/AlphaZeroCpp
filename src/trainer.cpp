@@ -11,7 +11,7 @@ std::vector<Example> Trainer::ExecuteEpisode() {
                                                          current_player);
     auto mcts = MCTS(this->game_, this->model_);
     auto root = mcts.Run(canonical_board, current_player, 
-                         this->num_simulations_);
+                         options_.num_simulations);
     
     auto action_probs = std::vector<float>(this->game_.GetActionSize(), 0);
     for(auto&& child : root->Children) {
@@ -52,12 +52,12 @@ std::vector<Example> Trainer::ExecuteEpisode() {
 }
 
 void Trainer::Learn() {
-  for(uint32_t i = 0; i < training_iterations_; ++i) {
-    std::cout << i << "/" << training_iterations_ << std::endl;
+  for(uint32_t i = 0; i < options_.training_iterations; ++i) {
+    std::cout << i << "/" << options_.training_iterations << std::endl;
 
     std::vector<Example> training_examples;
 
-    for (uint32_t episode = 0; episode < number_of_episodes_; ++episode) {
+    for (uint32_t episode = 0; episode < options_.num_episodes; ++episode) {
       auto iter_training_examples = this->ExecuteEpisode();
       training_examples.insert(training_examples.end(), 
                                iter_training_examples.begin(),

@@ -71,6 +71,7 @@
         "codecvt": "cpp",
         "cuchar": "cpp",
         "scoped_allocator": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "filesystem": "cpp"
     }
 }

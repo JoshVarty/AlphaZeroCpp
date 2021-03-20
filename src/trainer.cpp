@@ -29,6 +29,8 @@ std::vector<Example> Trainer::ExecuteEpisode() {
 
     // Adding default reward of zero for now. Once the game completes, 
     // we will correct the example with the correct reward
+
+    // TODO (Are the canonical boards correct? They don't seem to be changing properly)
     train_examples.push_back({canonical_board, current_player, action_probs, 0});
 
     auto action = root->SelectAction(/*temperature=*/0);
@@ -51,6 +53,83 @@ std::vector<Example> Trainer::ExecuteEpisode() {
   }
 }
 
+
+void Trainer::Train(const std::vector<Example>& examples) {
+  torch::optim::AdamOptions opt;
+  opt = opt.lr(5e-4);
+  auto optimizer = torch::optim::Adam(this->model_.parameters(), opt);
+
+  auto pi_losses = std::vector<float>();
+  auto v_losses = std::vector<float>();
+
+  this->model_.train();
+
+  std::cout << "NUM EXAMPLES:\t" << examples.size() << std::endl;
+  for (int i = 0; i < options_.num_epochs; ++i) {
+
+    uint32_t batch_idx = 0;
+
+    auto num_batches = static_cast<int>(examples.size() 
+                                        / options_.batch_size);
+
+    float boards[options_.batch_size][game_.GetBoardSize()];
+    float target_pis[options_.batch_size][game_.GetBoardSize()];
+    float target_vis[options_.batch_size];
+
+    while (batch_idx < num_batches) {
+      int start_idx = batch_idx * options_.batch_size;
+
+      // Build an input tensor
+      // TODO: (joshvarty) If anyone knows the proper way to do this,
+      // please let me know
+      for(int i = 0; i < options_.batch_size; ++i) {
+        auto i_offset = i + start_idx;
+        for(int j = 0; j < game_.GetActionSize(); ++j) {
+          boards[i][j] = static_cast<float>(examples[i_offset].canonical_board[j]);
+          target_pis[i][j] = examples[i_offset].action_probs[j];
+        }
+        target_vis[i] = examples[i].reward;
+      }
+
+      auto opt = torch::TensorOptions().device(torch::kCPU);
+      torch::Tensor board_tensor = torch::from_blob(boards, {options_.batch_size, game_.GetActionSize()}, opt.dtype(torch::kFloat32));
+      torch::Tensor pis_tensor = torch::from_blob(target_pis, {options_.batch_size, game_.GetActionSize()}, opt.dtype(torch::kFloat32));
+      torch::Tensor vis_tensor = torch::from_blob(target_vis, {options_.batch_size}, opt.dtype(torch::kFloat32));
+      // TODO: (#13) Create Tensor on the device instead of moving it there
+      board_tensor = board_tensor.to(this->model_.device);
+      pis_tensor = pis_tensor.to(this->model_.device);
+      vis_tensor = vis_tensor.to(this->model_.device);
+
+      // Get output and loss from model
+      auto probs_and_value = this->model_.forward(board_tensor);
+      auto out_pis = probs_and_value.action_probs;
+      auto out_v = probs_and_value.value;
+      auto l_pi = this->GetProbabilityLoss(pis_tensor, out_pis);
+      auto l_vi = this->GetValueLoss(vis_tensor, out_v);
+      auto total_loss = l_pi + l_vi;
+
+      // Backprop
+      optimizer.zero_grad();
+      total_loss.backward();
+      optimizer.step();
+
+      // Keep track of losses
+      auto avg_l_vi = l_vi.cpu().item<float>();
+
+      pi_losses.push_back(l_pi.cpu().item<float>());
+      v_losses.push_back(l_vi.cpu().item<float>());
+
+      ++batch_idx;
+    }
+
+    auto avg_p_loss = std::accumulate(pi_losses.begin(), pi_losses.end(), 0.0) / pi_losses.size();
+    auto avg_v_loss = std::accumulate(v_losses.begin(), v_losses.end(), 0.0) / v_losses.size();
+    std::cout << "Avg p_loss:\t" << avg_p_loss << std::endl;
+    std::cout << "Avg v_loss:\t" << avg_v_loss << std::endl;
+  }
+}
+
+
 void Trainer::Learn() {
   for(uint32_t i = 0; i < options_.training_iterations; ++i) {
     std::cout << i << "/" << options_.training_iterations << std::endl;
@@ -65,12 +144,13 @@ void Trainer::Learn() {
     }
 
     std::random_shuffle(training_examples.begin(), training_examples.end());
-    //this->Train(training_examples);
+    this->Train(training_examples);
     // TODO (joshvarty): Probably want to let people change this?
     std::string kFileName = "checkpoint";
     //this->SaveCheckpoint("checkpoints", kFileName);
   }
 }
+
 
 torch::Tensor Trainer::GetProbabilityLoss(torch::Tensor targets,
                                           torch::Tensor outputs) {

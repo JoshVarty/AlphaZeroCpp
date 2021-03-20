@@ -12,8 +12,6 @@ float Node::GetValue() {
 }
 
 int Node::SelectAction(float temperature) {
-  // TODO: SOMETHING IS WRONG HERE PLEASE FIX
-  throw "SOMETHING WRONG";
   std::vector<int> actions, visit_counts;
 
   int max_action = -1, max_visit_count = -1;
@@ -31,7 +29,7 @@ int Node::SelectAction(float temperature) {
 
   if (temperature == 0) {
     // For zero temperature, we select the action with the highest visitCount
-    return max_action;
+    return actions[max_action];
   } else {
     // otherwise we select randomly from the visitCount distribution
     std::discrete_distribution<int> distr(visit_counts.begin(),
